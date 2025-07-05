@@ -1,0 +1,52 @@
+server:
+  port: 9001
+  address: 0.0.0.0
+spring:
+  application:
+    name: gateway
+  cloud:
+    nacos:
+      discovery:
+        server-addr: 127.0.0.1:8848
+        ip: 192.168.0.108
+    gateway:
+      discovery:
+        locator:
+          enabled: false
+      routes:
+        - id: user-service
+          uri: lb://user-service
+          predicates:
+            - Path=/api/users/**,/api/patient/**,/api/appointments/**,/api/departments/**
+
+
+        - id: doctor-service
+          uri: lb://doctor-service
+          predicates:
+           - Path=/api/doctors/**,/api/doctor-schedules/**
+
+        - id: medicine-service
+          uri: lb://medicine-service
+          predicates:
+            - Path=/api/medicine-stock-records,/api/medicine-inventory/**
+
+
+
+        - id: admin-service
+          uri: lb://admin-service
+          predicates:
+            - Path=/api/medical-records/**,/api/admin-users/**
+          filters:
+            - StripPrefix=0
+
+
+
+
+
+
+
+
+logging:
+  level:
+    root: INFO
+    org.springframework.cloud.gateway: DEBUG

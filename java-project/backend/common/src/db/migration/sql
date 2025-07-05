@@ -1,0 +1,131 @@
+-- 患者信息表
+CREATE TABLE `patient` (
+  `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+  `user_id` bigint NOT NULL COMMENT '用户ID',
+  `id_card` varchar(18) NOT NULL COMMENT '身份证号',
+  `address` varchar(255) DEFAULT NULL COMMENT '地址',
+  `emergency_contact` varchar(50) DEFAULT NULL COMMENT '紧急联系人',
+  `emergency_phone` varchar(20) DEFAULT NULL COMMENT '紧急联系电话',
+  `medical_history` text COMMENT '病史',
+  `allergies` text COMMENT '过敏史',
+  `blood_type` varchar(10) DEFAULT NULL COMMENT '血型',
+  `remark` varchar(255) DEFAULT NULL COMMENT '备注',
+  `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  `deleted` tinyint NOT NULL DEFAULT '0' COMMENT '是否删除',
+  PRIMARY KEY (`id`),
+  KEY `idx_user_id` (`user_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='患者信息表';
+
+-- 药品表
+CREATE TABLE `medicine` (
+  `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+  `name` varchar(100) NOT NULL COMMENT '药品名称',
+  `type` varchar(50) NOT NULL COMMENT '药品类型',
+  `specification` varchar(100) NOT NULL COMMENT '规格',
+  `manufacturer` varchar(200) NOT NULL COMMENT '生产厂家',
+  `stock` int NOT NULL DEFAULT '0' COMMENT '当前库存',
+  `min_stock` int NOT NULL DEFAULT '0' COMMENT '最低库存',
+  `unit` varchar(20) NOT NULL COMMENT '单位',
+  `price` decimal(10,2) NOT NULL COMMENT '单价',
+  `status` tinyint NOT NULL DEFAULT '1' COMMENT '状态（0-下架，1-上架）',
+  `remark` varchar(255) DEFAULT NULL COMMENT '备注',
+  `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  `deleted` tinyint NOT NULL DEFAULT '0' COMMENT '是否删除',
+  PRIMARY KEY (`id`),
+  KEY `idx_name` (`name`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='药品表';
+
+-- 药品库存记录表
+CREATE TABLE `medicine_stock_record` (
+  `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+  `medicine_id` bigint NOT NULL COMMENT '药品ID',
+  `type` tinyint NOT NULL COMMENT '类型（1-入库，2-出库）',
+  `quantity` int NOT NULL COMMENT '数量',
+  `before_stock` int NOT NULL COMMENT '操作前库存',
+  `after_stock` int NOT NULL COMMENT '操作后库存',
+  `operator_id` bigint NOT NULL COMMENT '操作人ID',
+  `remark` varchar(255) DEFAULT NULL COMMENT '备注',
+  `change_time` datetime NOT NULL COMMENT '操作时间',
+  `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  `deleted` tinyint NOT NULL DEFAULT '0' COMMENT '是否删除',
+  PRIMARY KEY (`id`),
+  KEY `idx_medicine_id` (`medicine_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='药品库存记录表';
+
+-- 科室表
+CREATE TABLE `department` (
+  `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+  `name` varchar(50) NOT NULL COMMENT '科室名称',
+  `description` varchar(255) DEFAULT NULL COMMENT '科室描述',
+  `status` tinyint NOT NULL DEFAULT '1' COMMENT '状态（0-禁用，1-启用）',
+  `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  `deleted` tinyint NOT NULL DEFAULT '0' COMMENT '是否删除',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='科室表';
+
+-- 医生表
+CREATE TABLE `doctor` (
+  `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+  `user_id` bigint NOT NULL COMMENT '用户ID',
+  `department_id` bigint NOT NULL COMMENT '科室ID',
+  `title` varchar(50) NOT NULL COMMENT '职称',
+  `specialty` varchar(255) DEFAULT NULL COMMENT '专长',
+  `introduction` text COMMENT '简介',
+  `status` tinyint NOT NULL DEFAULT '1' COMMENT '状态（0-禁用，1-启用）',
+  `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  `deleted` tinyint NOT NULL DEFAULT '0' COMMENT '是否删除',
+  PRIMARY KEY (`id`),
+  KEY `idx_user_id` (`user_id`),
+  KEY `idx_department_id` (`department_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='医生表';
+
+-- 病历表
+CREATE TABLE `medical_record` (
+  `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+  `appointment_id` bigint NOT NULL COMMENT '预约ID',
+  `patient_id` bigint NOT NULL COMMENT '患者ID',
+  `doctor_id` bigint NOT NULL COMMENT '医生ID',
+  `diagnosis` text NOT NULL COMMENT '诊断结果',
+  `treatment_plan` text NOT NULL COMMENT '治疗方案',
+  `remarks` varchar(255) DEFAULT NULL COMMENT '备注',
+  `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  `deleted` tinyint NOT NULL DEFAULT '0' COMMENT '是否删除',
+  PRIMARY KEY (`id`),
+  KEY `idx_appointment_id` (`appointment_id`),
+  KEY `idx_patient_id` (`patient_id`),
+  KEY `idx_doctor_id` (`doctor_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='病历表';
+
+-- 验证码表
+CREATE TABLE `verification_code` (
+  `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+  `email` varchar(100) NOT NULL COMMENT '邮箱',
+  `code` varchar(10) NOT NULL COMMENT '验证码',
+  `type` tinyint NOT NULL COMMENT '类型',
+  `status` tinyint NOT NULL DEFAULT '0' COMMENT '状态',
+  `expire_time` datetime NOT NULL COMMENT '过期时间',
+  `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  `deleted` tinyint NOT NULL DEFAULT '0' COMMENT '是否删除',
+  PRIMARY KEY (`id`),
+  KEY `idx_email` (`email`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='验证码表';
+
+-- 邮件验证表
+CREATE TABLE `email_verification` (
+  `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+  `email` varchar(100) NOT NULL COMMENT '邮箱',
+  `code` varchar(10) NOT NULL COMMENT '验证码',
+  `type` tinyint NOT NULL COMMENT '类型',
+  `expire_time` datetime NOT NULL COMMENT '过期时间',
+  `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `is_used` tinyint NOT NULL DEFAULT '0' COMMENT '是否已使用',
+  PRIMARY KEY (`id`),
+  KEY `idx_email` (`email`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='邮件验证表';
